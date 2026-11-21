@@ -29,7 +29,7 @@ export const config = {
     secret: getRequiredEnv('JWT_SECRET'),
     expiresIn: process.env.JWT_EXPIRES_IN || '12h',
     refreshSecret: getRequiredEnv('JWT_REFRESH_SECRET'),
-    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
   },
   pos: {
     counterId: process.env.COUNTER_ID || 'COUNTER-01',

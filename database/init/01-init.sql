@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS users (
     full_name VARCHAR(150) NOT NULL,
     role user_role NOT NULL DEFAULT 'SALESPERSON',
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    last_login_at TIMESTAMPTZ,
+    password_changed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -53,6 +55,7 @@ CREATE TABLE IF NOT EXISTS categories (
     name VARCHAR(120) UNIQUE NOT NULL,
     code VARCHAR(50) UNIQUE NOT NULL,
     description TEXT,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -134,6 +137,20 @@ CREATE TABLE IF NOT EXISTS sync_queue (
     synced_at TIMESTAMPTZ
 );
 
+-- 8. Active User Sessions Table (Database-backed session management & sliding window token support)
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    counter_id VARCHAR(50) NOT NULL DEFAULT 'COUNTER-01',
+    refresh_token_hash VARCHAR(255) UNIQUE NOT NULL,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    is_revoked BOOLEAN NOT NULL DEFAULT FALSE,
+    expires_at TIMESTAMPTZ NOT NULL,
+    last_active_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- Indexes for performance & concurrency
 CREATE INDEX IF NOT EXISTS idx_products_barcode ON products(barcode);
 CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
@@ -144,6 +161,14 @@ CREATE INDEX IF NOT EXISTS idx_transactions_receipt ON transactions(receipt_numb
 CREATE INDEX IF NOT EXISTS idx_transactions_sync ON transactions(sync_status);
 CREATE INDEX IF NOT EXISTS idx_transactions_created_at ON transactions(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_sync_queue_status_seq ON sync_queue(status, sequence_id);
+
+-- Session & Stock Dashboard performance indexes
+CREATE INDEX IF NOT EXISTS idx_user_sessions_lookup ON user_sessions(user_id, is_revoked);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions(refresh_token_hash);
+CREATE INDEX IF NOT EXISTS idx_products_low_stock ON products(stock_quantity, min_stock_alert) WHERE is_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_products_valuation ON products(category_id, stock_quantity, cost_price, selling_price) WHERE is_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_inventory_ledger_audit ON inventory_ledger(product_id, reason_code, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_inventory_ledger_created ON inventory_ledger(created_at DESC);
 
 -- SEED DATA
 -- Default Passwords (bcrypt hash of 'StockSync@2026')

@@ -6,7 +6,16 @@ export class UsersController {
   async listUsers(req: Request, res: Response, next: NextFunction) {
     try {
       const users = await usersService.getAllUsers();
-      res.json(users);
+      res.json({ users });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = await usersService.getUserById(req.params.id);
+      res.json({ user });
     } catch (err) {
       next(err);
     }
@@ -24,12 +33,26 @@ export class UsersController {
         return;
       }
       const newUser = await usersService.createUser({ username, password, fullName, role });
-      res.status(201).json(newUser);
+      res.status(201).json({ user: newUser });
     } catch (err: any) {
       if (err.code === '23505') {
         res.status(409).json({ error: 'Username already exists' });
         return;
       }
+      next(err);
+    }
+  }
+
+  async updateUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { fullName, role, password } = req.body;
+      if (role && !Object.values(UserRole).includes(role)) {
+        res.status(400).json({ error: 'Invalid user role' });
+        return;
+      }
+      const updated = await usersService.updateUser(req.params.id, { fullName, role, password });
+      res.json({ user: updated });
+    } catch (err) {
       next(err);
     }
   }
@@ -43,7 +66,7 @@ export class UsersController {
         return;
       }
       const updated = await usersService.toggleActiveStatus(id, isActive);
-      res.json(updated);
+      res.json({ user: updated });
     } catch (err) {
       next(err);
     }
