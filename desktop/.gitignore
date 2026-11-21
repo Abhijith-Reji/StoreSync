@@ -1,0 +1,14 @@
+# Desktop Dependencies
+node_modules/
+
+# Compiled Output
+dist/
+
+# Electron-builder distribution packages
+release/
+*.exe
+*.blockmap
+
+# Logs
+logs/
+*.log

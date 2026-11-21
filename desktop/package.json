@@ -1,0 +1,60 @@
+{
+  "name": "stocksync-desktop",
+  "version": "1.0.0",
+  "description": "StockSync POS Windows Desktop Wrapper with Native DPAPI Security",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc && electron .",
+    "build:all": "npm --prefix ../backend run build && npm --prefix ../frontend run build && npm run build",
+    "pack": "electron-builder --dir",
+    "dist": "npm run build:all && electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.stocksync.pos",
+    "productName": "StockSync POS",
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "StockSync POS"
+    },
+    "files": [
+      "dist/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend/dist",
+        "to": "backend/dist"
+      },
+      {
+        "from": "../backend/node_modules",
+        "to": "backend/node_modules"
+      },
+      {
+        "from": "../backend/package.json",
+        "to": "backend/package.json"
+      },
+      {
+        "from": "../frontend/dist/pos-desktop/browser",
+        "to": "frontend"
+      }
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.8.2"
+  }
+}

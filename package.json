@@ -1,0 +1,19 @@
+{
+  "name": "stocksync-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StockSync: Offline-first Supermarket Management and POS System",
+  "scripts": {
+    "db:up": "docker compose -f database/docker-compose.yml up -d",
+    "db:down": "docker compose -f database/docker-compose.yml down",
+    "db:ps": "docker compose -f database/docker-compose.yml ps",
+    "backend:dev": "npm --prefix backend run dev",
+    "backend:build": "npm --prefix backend run build",
+    "backend:test": "npm --prefix backend run test:integration",
+    "frontend:dev": "npm --prefix frontend start",
+    "frontend:build": "npm --prefix frontend run build",
+    "desktop:build": "npm --prefix desktop run build",
+    "desktop:start": "npm --prefix desktop start",
+    "desktop:dist": "npm --prefix desktop run dist"
+  }
+}

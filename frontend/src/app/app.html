@@ -1,0 +1,142 @@
+<div class="h-screen w-screen flex flex-col bg-slate-900 text-slate-100 overflow-hidden font-sans">
+  <!-- Top Navigation Header -->
+  <header class="h-16 px-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between shrink-0">
+    <!-- Store & Terminal Brand -->
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-indigo-600/30">
+        S
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-black text-base tracking-tight text-white">StockSync</h1>
+          <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-mono">
+            {{ authService.currentUser().counterId }}
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-400">Offline-First Retail Management</p>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+      <button
+        (click)="activeTab.set('CHECKOUT')"
+        [class.bg-indigo-600]="activeTab() === 'CHECKOUT'"
+        [class.text-white]="activeTab() === 'CHECKOUT'"
+        [class.text-slate-400]="activeTab() !== 'CHECKOUT'"
+        class="px-4 py-2 rounded-lg text-xs font-bold transition-colors"
+      >
+        POS Checkout
+      </button>
+
+      @if (authService.isManager() || authService.isOwner()) {
+        <button
+          (click)="activeTab.set('INVENTORY')"
+          [class.bg-indigo-600]="activeTab() === 'INVENTORY'"
+          [class.text-white]="activeTab() === 'INVENTORY'"
+          [class.text-slate-400]="activeTab() !== 'INVENTORY'"
+          class="px-4 py-2 rounded-lg text-xs font-bold transition-colors"
+        >
+          Inventory & Audit
+        </button>
+
+        <button
+          (click)="activeTab.set('STAFF')"
+          [class.bg-indigo-600]="activeTab() === 'STAFF'"
+          [class.text-white]="activeTab() === 'STAFF'"
+          [class.text-slate-400]="activeTab() !== 'STAFF'"
+          class="px-4 py-2 rounded-lg text-xs font-bold transition-colors"
+        >
+          Staff & Access
+        </button>
+      }
+    </nav>
+
+    <!-- Status Badges & Role Switcher -->
+    <div class="flex items-center gap-3">
+      <!-- Database Connection Status Badge -->
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>Local DB (Docker): Active</span>
+      </div>
+
+      <!-- Quick Azure Sync Trigger -->
+      @if (authService.isManager() || authService.isOwner()) {
+        <button
+          (click)="triggerAzureSync()"
+          [disabled]="isSyncing()"
+          class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-500/10 border border-sky-500/30 hover:bg-sky-500/20 text-sky-400 text-xs font-bold transition-colors"
+        >
+          <svg class="w-3.5 h-3.5" [class.animate-spin]="isSyncing()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          {{ isSyncing() ? 'Syncing...' : 'Sync Azure' }}
+        </button>
+      }
+
+      <!-- Role Switcher Dropdown (For demo/testing PRD RBAC) -->
+      <div class="flex items-center gap-2 pl-3 border-l border-slate-800">
+        <div class="text-right">
+          <div class="text-xs font-bold text-white leading-tight">
+            {{ authService.currentUser().fullName }}
+          </div>
+          <span class="text-[10px] font-mono text-indigo-400 font-semibold">
+            {{ authService.currentUser().role }}
+          </span>
+        </div>
+
+        <select
+          [value]="authService.currentUser().role"
+          (change)="switchRole($any($event.target).value)"
+          class="h-8 px-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-slate-200 cursor-pointer focus:outline-none"
+          title="Switch Active RBAC Role for Testing"
+        >
+          <option [value]="UserRole.SALESPERSON">Role: Salesperson</option>
+          <option [value]="UserRole.MANAGER">Role: Manager</option>
+          <option [value]="UserRole.OWNER">Role: Owner</option>
+        </select>
+
+        <!-- Desktop Window Controls (When Running inside Desktop Shell) -->
+        @if (authService.isDesktop) {
+          <div class="flex items-center gap-1 pl-3 border-l border-slate-800">
+            <button
+              (click)="minimizeDesktop()"
+              class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white text-sm"
+              title="Minimize"
+            >
+              &#8212;
+            </button>
+            <button
+              (click)="maximizeDesktop()"
+              class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white text-xs font-mono"
+              title="Maximize"
+            >
+              &#9633;
+            </button>
+            <button
+              (click)="closeDesktop()"
+              class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-rose-600 text-slate-400 hover:text-white text-xs"
+              title="Close"
+            >
+              &#10005;
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Router / Switcher -->
+  <main class="flex-1 overflow-hidden relative">
+    @if (activeTab() === 'CHECKOUT') {
+      <app-pos-checkout class="h-full w-full block"></app-pos-checkout>
+    } @else if (activeTab() === 'INVENTORY') {
+      <app-inventory class="h-full w-full block"></app-inventory>
+    } @else if (activeTab() === 'STAFF') {
+      <app-user-management class="h-full w-full block"></app-user-management>
+    }
+  </main>
+
+  <!-- Inactivity Screen Lock Modal -->
+  <app-inactivity-lock></app-inactivity-lock>
+</div>
