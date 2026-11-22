@@ -161,7 +161,7 @@ async function createWindow() {
 
   // Load the Frontend
   const frontendPath = isDev
-    ? path.join(__dirname, '../../frontend/dist/pos-desktop/browser/index.html')
+    ? path.join(__dirname, '../../frontend/dist/index.html')
     : path.join(process.resourcesPath, 'frontend', 'index.html');
 
   console.log(`[Electron Main] Loading frontend UI from: ${frontendPath}`);

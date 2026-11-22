@@ -75,6 +75,7 @@ tmp/
 **/tmp/
 temp/
 **/temp/
+*.tsbuildinfo
 
 # Electron Desktop Artifacts & Installers
 release/

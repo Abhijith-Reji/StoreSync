@@ -46,7 +46,7 @@
         "to": "backend/package.json"
       },
       {
-        "from": "../frontend/dist/pos-desktop/browser",
+        "from": "../frontend/dist",
         "to": "frontend"
       }
     ]
