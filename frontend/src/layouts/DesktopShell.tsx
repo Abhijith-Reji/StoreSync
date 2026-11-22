@@ -94,7 +94,7 @@ export const DesktopShell: React.FC<DesktopShellProps> = ({ children, title }) =
             <img
               src={logoImg}
               alt="StoreSync Logo"
-              className="h-9 w-9 min-w-9 object-contain rounded-lg shadow-xs"
+              className="h-9 w-9 min-w-9 object-contain"
             />
             {!collapsed && (
               <div className="flex flex-col">

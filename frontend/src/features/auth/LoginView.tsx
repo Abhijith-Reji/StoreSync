@@ -52,7 +52,7 @@ export const LoginView: React.FC = () => {
           <img
             src={logoImg}
             alt="StoreSync Logo"
-            className="h-20 w-20 object-contain drop-shadow-md rounded-2xl mb-3"
+            className="h-20 w-20 object-contain drop-shadow-md mb-3"
           />
           <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
             Store<span className="text-emerald-600 dark:text-emerald-500">Sync</span>
